@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 26, 31, 53;
+  --background-end-rgb: 45, 54, 76;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+    to bottom right,
+    rgb(var(--background-start-rgb)),
+    rgb(var(--background-end-rgb))
+  );
+  min-height: 100vh;
+}
+
+/* Estilos personalizados para scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e2538;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3d4659;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4a5573;
+}
+
+/* Animaciones suaves */
+.transition-all {
+  transition-duration: 300ms;
+}
+
+/* Efectos de hover elegantes */
+.hover\:shadow-gold:hover {
+  box-shadow: 0 0 20px rgba(201, 164, 92, 0.2);
+}
+
+/* Tipografía mejorada */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.025em;
+  }
+}
+
+/* Efectos de glassmorphism */
+.glass-effect {
+  background: rgba(42, 51, 71, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(61, 70, 89, 0.3);
+} 
