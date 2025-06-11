@@ -69,6 +69,7 @@ export default function DetallesRevision() {
   const imgRef = useRef<HTMLImageElement>(null);
   const [notas, setNotas] = useState<Nota[]>([]);
   const [showNotaForm, setShowNotaForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [nuevaNota, setNuevaNota] = useState({
     fecha: new Date().toISOString().split('T')[0],
     Usuario: '',
@@ -120,6 +121,7 @@ export default function DetallesRevision() {
     if (!data) return;
     
     try {
+      setIsSubmitting(true);
       let evidenciaUrl = null;
 
       if (nuevaNota.evidencia) {
@@ -177,9 +179,11 @@ export default function DetallesRevision() {
       });
       setShowNotaForm(false);
       fetchData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al guardar la nota:', error);
       alert('Error al guardar la nota');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -264,7 +268,7 @@ export default function DetallesRevision() {
             <h1 className="text-3xl font-bold text-white">Detalles de la Revisión</h1>
             <button
               onClick={() => router.back()}
-              className="px-4 py-2 text-[#1a1f35] bg-gradient-to-br from-[#c9a45c] via-[#d4b06c] to-[#f0c987] rounded-xl hover:from-[#d4b06c] hover:via-[#e0bc7c] hover:to-[#f7d498] transform hover:scale-[1.02] transition-all duration-200 shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/40 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-1000 after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/20 after:to-transparent after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-300 border border-[#f0c987]/20 hover:border-[#f0c987]/40"
+              className="px-4 py-2 text-[#1a1f35] bg-gradient-to-br from-[#c9a45c] via-[#d4b06c] to-[#f0c987] rounded-xl hover:from-[#d4b06c] hover:via-[#e0bc7c] hover:to-[#f7d498] transform hover:scale-[1.02] transition-all duration-200 shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/40 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-1000 after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/20 after:to-transparent after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-300 border border-[#f0c987]/20 hover:border-[#f0c987]/40 min-w-[100px] whitespace-nowrap"
             >
               Volver
             </button>
@@ -414,7 +418,7 @@ export default function DetallesRevision() {
                 <h2 className="text-[#ff4d4d] font-semibold">Notas</h2>
                 <button
                   onClick={() => setShowNotaForm(true)}
-                  className="px-4 py-2 bg-[#ff4d4d] text-white rounded-lg hover:bg-[#ff6b6b] transition-all"
+                  className="px-4 py-2 bg-[#ff4d4d] text-white rounded-lg hover:bg-[#ff6b6b] transition-all transform hover:scale-[1.02] shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden border-2 border-white/40 hover:border-white/60 animate-shimmer-mobile md:animate-none"
                 >
                   + Agregar Nota
                 </button>
@@ -463,15 +467,16 @@ export default function DetallesRevision() {
                       <button
                         type="button"
                         onClick={() => setShowNotaForm(false)}
-                        className="px-4 py-2 bg-[#3d4659] text-gray-300 rounded-lg hover:bg-[#4a5568] transition-all"
+                        className="px-4 py-2 bg-[#3d4659] text-gray-300 rounded-lg hover:bg-[#4a5568] transition-all transform hover:scale-[1.02] shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden border border-[#4a5568]/20 hover:border-[#4a5568]/40 animate-shimmer-mobile md:animate-none"
                       >
                         Cancelar
                       </button>
                       <button
                         type="submit"
-                        className="px-4 py-2 bg-[#c9a45c] text-[#1a1f35] rounded-lg hover:bg-[#d4b06c] transition-all flex items-center justify-center gap-2 min-w-[120px]"
+                        disabled={isSubmitting}
+                        className={`px-4 py-2 text-sm font-medium text-[#1a1f35] ${isSubmitting ? 'bg-[#22c55e] hover:bg-[#22c55e]' : 'bg-[#f0c987] hover:bg-[#f7d498]'} rounded-xl transition-all transform hover:scale-[1.02] shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden border-2 border-white/40 hover:border-white/60 disabled:opacity-50 flex items-center justify-center gap-2 min-w-[120px] animate-shimmer-mobile md:animate-none`}
                       >
-                        {loading ? (
+                        {isSubmitting ? (
                           <>
                             <svg className="animate-spin h-5 w-5 text-[#1a1f35]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
