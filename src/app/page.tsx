@@ -248,9 +248,21 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#1a1f35] to-[#2d364c]">
       <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-white">Revisión de Casitas</h1>
+          <div className="flex gap-4">
+            {userRole === 'SuperAdmin' && (
+              <button
+                onClick={() => router.push('/gestion-usuarios')}
+                className="px-4 py-2 bg-[#c9a45c] text-white rounded-lg hover:bg-[#d4b06c] transition-all transform hover:scale-[1.02] shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden border-2 border-white/40 hover:border-white/60"
+              >
+                Gestión de Usuarios
+              </button>
+            )}
+          </div>
+        </div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Revisión de Casitas</h1>
             {user && (
               <p className="text-[#c9a45c] font-medium">
                 Usuario: <span className="text-white">{user}</span>
@@ -271,14 +283,14 @@ export default function Home() {
             ) : (
               <button
                 onClick={() => setShowLoginModal(true)}
-                className="w-full md:w-auto px-4 py-2 bg-[#c9a45c] text-white rounded-lg hover:bg-[#d4b06c] transition-all transform hover:scale-[1.02] shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden border-2 border-white/40 hover:border-white/60 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-[#f0c987]/40 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-1000 after:absolute after:inset-0 after:bg-gradient-to-b after:from-[#f0c987]/30 after:to-transparent after:opacity-100 after:transition-opacity after:duration-300 md:before:translate-x-[-200%] md:hover:before:translate-x-[200%] before:translate-x-[200%] before:animate-[shimmer_1.5s_infinite]"
+                className="w-full md:w-auto px-4 py-2 bg-[#2a3347] text-white rounded-lg hover:bg-[#2a3347] transition-all transform hover:scale-[1.02] shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden border-2 border-white/40 hover:border-white/60 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-[#e0e614]/40 before:to-transparent before:translate-x-[-200%] md:before:translate-x-[-200%] md:hover:before:translate-x-[200%] before:translate-x-[200%] before:animate-[shimmer_2s_infinite] after:absolute after:inset-0 after:bg-gradient-to-b after:from-[#e0e614]/30 after:to-transparent after:opacity-100 after:transition-opacity after:duration-300"
               >
                 Iniciar Sesión
               </button>
             )}
             <Link
               href="/nueva-revision"
-              className="w-full md:w-auto px-6 py-3 bg-[#00ff00] text-white font-bold rounded-xl transform hover:scale-[1.02] transition-all duration-200 shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] whitespace-nowrap flex items-center justify-center gap-2 group relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-[#00ff00]/20 before:to-transparent before:translate-x-[-200%] before:animate-shimmer before:transition-transform before:duration-1000 after:absolute after:inset-0 after:bg-gradient-to-b after:from-[#00ff00]/10 after:to-transparent after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-300 border-2 border-white/40 hover:border-white/60 animate-shimmer-mobile md:animate-none"
+              className="w-full md:w-auto px-6 py-3 bg-[#2a3347] text-white font-bold rounded-xl transform hover:scale-[1.02] transition-all duration-200 shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] whitespace-nowrap flex items-center justify-center gap-2 group relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-[#06c426]/20 before:to-transparent before:translate-x-[-200%] md:before:translate-x-[-200%] md:hover:before:translate-x-[200%] before:translate-x-[200%] before:animate-[shimmer_2s_infinite] after:absolute after:inset-0 after:bg-gradient-to-b after:from-[#06c426]/15 after:to-transparent after:opacity-100 after:transition-opacity after:duration-300 border-2 border-white/40 hover:border-white/60"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transform group-hover:rotate-90 transition-transform duration-300" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
