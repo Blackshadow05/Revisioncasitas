@@ -7,6 +7,7 @@ import { es } from 'date-fns/locale';
 import { supabase } from '@/lib/supabase';
 import { compressImage } from '@/lib/imageUtils';
 import { getWeek } from 'date-fns';
+import { useAuth } from '@/context/AuthContext';
 
 interface RevisionData {
   id?: string;
@@ -54,6 +55,14 @@ interface Nota {
   created_at: string;
 }
 
+interface RegistroEdicion {
+  id?: string;
+  created_at?: string;
+  "Usuario que Edito": string;
+  Dato_anterior: string;
+  Dato_nuevo: string;
+}
+
 export default function DetallesRevision() {
   const params = useParams();
   const router = useRouter();
@@ -70,6 +79,10 @@ export default function DetallesRevision() {
   const [notas, setNotas] = useState<Nota[]>([]);
   const [showNotaForm, setShowNotaForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedData, setEditedData] = useState<RevisionData | null>(null);
+  const { userRole, user } = useAuth();
+  const [registroEdiciones, setRegistroEdiciones] = useState<RegistroEdicion[]>([]);
   const [nuevaNota, setNuevaNota] = useState({
     fecha: new Date().toISOString().split('T')[0],
     Usuario: '',
@@ -104,6 +117,22 @@ export default function DetallesRevision() {
 
       if (notasError) throw notasError;
       setNotas(notasData || []);
+
+      // Obtener el historial de ediciones y filtrar por el ID de la revisión actual
+      const { data: edicionesData, error: edicionesError } = await supabase
+        .from('Registro_ediciones')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (edicionesError) throw edicionesError;
+      
+      // Filtrar las ediciones que corresponden a esta revisión
+      const edicionesFiltradas = edicionesData?.filter(edicion => 
+        edicion.Dato_anterior.startsWith(`[${params.id}]`) || 
+        edicion.Dato_nuevo.startsWith(`[${params.id}]`)
+      ) || [];
+      
+      setRegistroEdiciones(edicionesFiltradas);
     } catch (error: any) {
       console.error('Error:', error);
       setError(error.message);
@@ -235,6 +264,109 @@ export default function DetallesRevision() {
     }
   };
 
+  const handleEdit = () => {
+    if (!data) return;
+    setEditedData({ ...data });
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!data || !editedData) return;
+
+    try {
+      setIsSubmitting(true);
+      // Obtener fecha y hora local del dispositivo sin ajustes de zona horaria
+      const now = new Date();
+      const fechaLocal = now.toLocaleString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }).replace(',', '');
+
+      console.log('Iniciando actualización...');
+
+      // Actualizar los datos en revisiones_casitas
+      const { error: updateError } = await supabase
+        .from('revisiones_casitas')
+        .update({
+          ...editedData,
+          fecha_edicion: fechaLocal,
+          quien_edito: user || 'Usuario'
+        })
+        .eq('id', data.id);
+
+      if (updateError) {
+        console.error('Error al actualizar revisiones_casitas:', updateError);
+        throw updateError;
+      }
+
+      console.log('Actualización en revisiones_casitas exitosa');
+
+      // Guardar el registro de cambios en Registro_ediciones
+      const cambios = Object.entries(editedData).reduce((acc, [key, value]) => {
+        if (key === 'id' || key === 'created_at' || key === 'fecha_edicion' || 
+            key === 'quien_edito' || key === 'datos_anteriores' || key === 'datos_actuales') {
+          return acc;
+        }
+        const valorAnterior = data[key as keyof RevisionData];
+        if (value !== valorAnterior) {
+          const registro = {
+            "Usuario que Edito": user || 'Usuario',
+            Dato_anterior: `[${data.id}] ${key}: ${String(valorAnterior || '')}`,
+            Dato_nuevo: `[${data.id}] ${key}: ${String(value || '')}`,
+            created_at: fechaLocal
+          };
+          console.log('Registro a insertar:', registro);
+          acc.push(registro);
+        }
+        return acc;
+      }, [] as RegistroEdicion[]);
+
+      console.log('Cambios detectados:', cambios);
+
+      if (cambios.length > 0) {
+        console.log('Intentando insertar en Registro_ediciones...');
+        const { data: insertData, error: registroError } = await supabase
+          .from('Registro_ediciones')
+          .insert(cambios)
+          .select();
+
+        if (registroError) {
+          console.error('Error al guardar en Registro_ediciones:', registroError);
+          console.error('Datos que causaron el error:', cambios);
+          throw registroError;
+        }
+
+        console.log('Inserción exitosa en Registro_ediciones:', insertData);
+      } else {
+        console.log('No hay cambios para registrar');
+      }
+
+      setIsEditing(false);
+      setEditedData(null);
+      await fetchData();
+    } catch (error: any) {
+      console.error('Error detallado:', error);
+      setError(`Error al guardar los cambios: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedData(null);
+  };
+
+  const handleInputChange = (field: keyof RevisionData, value: string) => {
+    if (!editedData) return;
+    setEditedData({ ...editedData, [field]: value });
+  };
+
   if (loading) return <div className="min-h-screen bg-gradient-to-br from-[#1a1f35] to-[#2d364c] flex items-center justify-center text-white">Cargando...</div>;
   if (error) return <div className="min-h-screen bg-gradient-to-br from-[#1a1f35] to-[#2d364c] flex items-center justify-center text-red-500">Error: {error}</div>;
   if (!data) return <div className="min-h-screen bg-gradient-to-br from-[#1a1f35] to-[#2d364c] flex items-center justify-center text-white">No se encontraron datos</div>;
@@ -266,12 +398,40 @@ export default function DetallesRevision() {
         <div className="bg-[#1e2538] rounded-lg shadow-xl p-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold text-white">Detalles de la Revisión</h1>
-            <button
-              onClick={() => router.back()}
-              className="px-4 py-2 text-[#1a1f35] bg-gradient-to-br from-[#c9a45c] via-[#d4b06c] to-[#f0c987] rounded-xl hover:from-[#d4b06c] hover:via-[#e0bc7c] hover:to-[#f7d498] transform hover:scale-[1.02] transition-all duration-200 shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/40 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-1000 after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/20 after:to-transparent after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-300 border border-[#f0c987]/20 hover:border-[#f0c987]/40 min-w-[100px] whitespace-nowrap"
-            >
-              Volver
-            </button>
+            <div className="flex gap-4">
+              {!isEditing ? (
+                (userRole === 'admin' || userRole === 'SuperAdmin') && (
+                  <button
+                    onClick={handleEdit}
+                    className="px-4 py-2 bg-[#c9a45c] text-white rounded-lg hover:bg-[#d4b06c] transition-all transform hover:scale-[1.02] shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden border-2 border-white/40 hover:border-white/60"
+                  >
+                    Editar
+                  </button>
+                )
+              ) : (
+                <>
+                  <button
+                    onClick={handleSaveEdit}
+                    disabled={isSubmitting}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all transform hover:scale-[1.02] shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden border-2 border-white/40 hover:border-white/60"
+                  >
+                    {isSubmitting ? 'Guardando...' : 'Guardar'}
+                  </button>
+                  <button
+                    onClick={handleCancelEdit}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all transform hover:scale-[1.02] shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden border-2 border-white/40 hover:border-white/60"
+                  >
+                    Cancelar
+                  </button>
+                </>
+              )}
+              <button
+                onClick={() => router.back()}
+                className="px-4 py-2 text-[#1a1f35] bg-gradient-to-br from-[#c9a45c] via-[#d4b06c] to-[#f0c987] rounded-xl hover:from-[#d4b06c] hover:via-[#e0bc7c] hover:to-[#f7d498] transform hover:scale-[1.02] transition-all duration-200 shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/40 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-1000 after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/20 after:to-transparent after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-300 border border-[#f0c987]/20 hover:border-[#f0c987]/40 min-w-[100px] whitespace-nowrap"
+              >
+                Volver
+              </button>
+            </div>
           </div>
 
           <div className="space-y-6">
@@ -280,14 +440,37 @@ export default function DetallesRevision() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <p className="text-base md:text-lg text-gray-300">
+                    <span className="text-gray-400">Casita:</span>{' '}
+                    <span className="text-green-500 font-semibold">{data?.casita}</span>
+                  </p>
+                  <p className="text-base md:text-lg text-gray-300">
                     <span className="text-gray-400">Fecha:</span>{' '}
-                    {data.created_at.split('.')[0].replace('T', ' ')}
+                    {data?.created_at.split('.')[0].replace('T', ' ')}
                   </p>
                   <p className="text-base md:text-lg text-gray-300">
-                    <span className="text-gray-400">Revisado por:</span> {data.quien_revisa}
+                    <span className="text-gray-400">Revisado por:</span>{' '}
+                    {data?.quien_revisa}
                   </p>
                   <p className="text-base md:text-lg text-gray-300">
-                    <span className="text-gray-400">Caja fuerte:</span> {data.caja_fuerte}
+                    <span className="text-gray-400">Caja fuerte:</span>{' '}
+                    {isEditing ? (
+                      <select
+                        value={editedData?.caja_fuerte}
+                        onChange={(e) => handleInputChange('caja_fuerte', e.target.value)}
+                        className="ml-2 px-2 py-1 bg-[#2a3347] border border-[#3d4659] rounded-md text-white"
+                      >
+                        <option value="Si">Si</option>
+                        <option value="No">No</option>
+                        <option value="Check in">Check in</option>
+                        <option value="Check out">Check out</option>
+                        <option value="Upsell">Upsell</option>
+                        <option value="Guardar Upsell">Guardar Upsell</option>
+                        <option value="Back to Back">Back to Back</option>
+                        <option value="Show Room">Show Room</option>
+                      </select>
+                    ) : (
+                      data?.caja_fuerte
+                    )}
                   </p>
                 </div>
               </div>
@@ -296,86 +479,36 @@ export default function DetallesRevision() {
             <div>
               <h2 className="text-xl md:text-2xl text-[#c9a45c] font-semibold mb-4">Accesorios</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Caja Fuerte</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.caja_fuerte}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Puertas y Ventanas</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.puertas_ventanas}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Chromecast</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.chromecast}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Binoculares</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.binoculares}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Trapo Binoculares</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.trapo_binoculares}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Speaker</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.speaker}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">USB Speaker</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.usb_speaker}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Controles TV</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.controles_tv}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Secadora</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.secadora}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Accesorios Secadora</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.accesorios_secadora}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Accesorios Secadora Faltante</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.accesorios_secadora_faltante}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Faltantes</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.faltantes}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Steamer</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.steamer}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Bolsa Vapor</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.bolsa_vapor}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Plancha Cabello</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.plancha_cabello}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Bulto</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.bulto}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Sombrero</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.sombrero}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Bolso Yute</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.bolso_yute}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Camas Ordenadas</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.camas_ordenadas}</p>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Cola Caballo</h3>
-                  <p className="text-base md:text-lg text-gray-300">{data.cola_caballo}</p>
-                </div>
+                {Object.entries(data || {}).map(([key, value]) => {
+                  if (key === 'id' || key === 'created_at' || key === 'casita' || 
+                      key === 'quien_revisa' || key === 'caja_fuerte' || 
+                      key === 'fecha_edicion' || key === 'quien_edito' || 
+                      key === 'datos_anteriores' || key === 'datos_actuales' || 
+                      key === 'fecha_creacion' || key === 'Notas' ||
+                      key.startsWith('evidencia_')) {
+                    return null;
+                  }
+
+                  const label = key.split('_').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                  ).join(' ');
+
+                  return (
+                    <div key={key}>
+                      <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">{label}</h3>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editedData?.[key as keyof RevisionData] || ''}
+                          onChange={(e) => handleInputChange(key as keyof RevisionData, e.target.value)}
+                          className="w-full px-4 py-2 bg-[#2a3347] border border-[#3d4659] rounded-md text-white"
+                        />
+                      ) : (
+                        <p className="text-base md:text-lg text-gray-300">{value}</p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -520,6 +653,42 @@ export default function DetallesRevision() {
                     )}
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Nueva sección para el historial de ediciones */}
+            <div className="mt-8">
+              <h2 className="text-[#c9a45c] font-semibold mb-4">Historial de Ediciones</h2>
+              <div className="space-y-4">
+                {registroEdiciones.map((edicion, index) => (
+                  <div key={index} className="bg-[#1e2538] rounded-lg p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <p className="text-[#c9a45c] font-medium">
+                          {edicion.created_at ? edicion.created_at.split('+')[0].replace('T', ' ') : ''}
+                        </p>
+                        <p className="text-gray-400 text-sm">Editado por: {edicion["Usuario que Edito"]}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                      <div className="bg-[#2a3347] p-3 rounded">
+                        <p className="text-gray-400 text-sm mb-1">Dato Anterior:</p>
+                        <p className="text-gray-300">
+                          {edicion.Dato_anterior.split(': ').slice(1).join(': ')}
+                        </p>
+                      </div>
+                      <div className="bg-[#2a3347] p-3 rounded">
+                        <p className="text-gray-400 text-sm mb-1">Dato Nuevo:</p>
+                        <p className="text-gray-300">
+                          {edicion.Dato_nuevo.split(': ').slice(1).join(': ')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {registroEdiciones.length === 0 && (
+                  <p className="text-gray-400 text-center py-4">No hay ediciones registradas</p>
+                )}
               </div>
             </div>
           </div>

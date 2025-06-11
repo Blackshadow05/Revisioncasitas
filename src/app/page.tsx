@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import NotasForm from '@/components/NotasForm';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 interface RevisionData {
   id?: string;
@@ -47,6 +48,7 @@ interface RevisionData {
 
 export default function Home() {
   const router = useRouter();
+  const { isLoggedIn, userRole, login, logout } = useAuth();
   const [data, setData] = useState<RevisionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +62,12 @@ export default function Home() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const imgRef = useRef<HTMLImageElement>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginData, setLoginData] = useState({
+    usuario: '',
+    password: ''
+  });
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const [startX, setStartX] = useState(0);
@@ -223,6 +231,20 @@ export default function Home() {
     }
   };
 
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError(null);
+
+    try {
+      await login(loginData.usuario, loginData.password);
+      setShowLoginModal(false);
+      setLoginData({ usuario: '', password: '' });
+    } catch (error: any) {
+      console.error('Error al iniciar sesión:', error);
+      setLoginError('Error al iniciar sesión');
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0f172a] to-[#1e2538] text-white p-4 md:p-8">
       <div className="max-w-[2000px] mx-auto">
@@ -244,6 +266,25 @@ export default function Home() {
                   />
                 </div>
               </div>
+              {/* Botón de Inicio de Sesión */}
+              {!isLoggedIn ? (
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="px-4 py-2 bg-[#c9a45c] text-white rounded-lg hover:bg-[#d4b06c] transition-all transform hover:scale-[1.02] shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden border-2 border-white/40 hover:border-white/60"
+                >
+                  Iniciar Sesión
+                </button>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <span className="text-[#c9a45c]">Rol: {userRole}</span>
+                  <button
+                    onClick={logout}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all transform hover:scale-[1.02] shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden border-2 border-white/40 hover:border-white/60"
+                  >
+                    Cerrar Sesión
+                  </button>
+                </div>
+              )}
               {/* Filtro por Caja Fuerte */}
               <select
                 value={cajaFuerteFilter}
@@ -455,6 +496,55 @@ export default function Home() {
                     </svg>
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Modal de Login */}
+          {showLoginModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+              <div className="bg-[#1e2538] p-6 rounded-lg shadow-xl w-full max-w-md">
+                <h2 className="text-2xl font-bold text-[#c9a45c] mb-4">Iniciar Sesión</h2>
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Usuario</label>
+                    <input
+                      type="text"
+                      value={loginData.usuario}
+                      onChange={(e) => setLoginData({ ...loginData, usuario: e.target.value })}
+                      className="w-full px-4 py-2 bg-[#2a3347] border border-[#3d4659] rounded-md text-white"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Contraseña</label>
+                    <input
+                      type="password"
+                      value={loginData.password}
+                      onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                      className="w-full px-4 py-2 bg-[#2a3347] border border-[#3d4659] rounded-md text-white"
+                      required
+                    />
+                  </div>
+                  {loginError && (
+                    <p className="text-red-500 text-sm">{loginError}</p>
+                  )}
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginModal(false)}
+                      className="px-4 py-2 bg-[#3d4659] text-gray-300 rounded-lg hover:bg-[#4a5568] transition-all"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-[#c9a45c] text-white rounded-lg hover:bg-[#d4b06c] transition-all"
+                    >
+                      Iniciar Sesión
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           )}
