@@ -1,35 +1,19 @@
-name: Deploy to GitHub Pages
+name: Deploy to Vercel
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-    env:
-      NEXT_PUBLIC_SUPABASE_URL: "https://snkyczysawxjrpmvtzqy.supabase.co"
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNua3ljenlzYXd4anJwbXZ0enF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE1NzcxNjgsImV4cCI6MjA1NzE1MzE2OH0.MrStn3bzcTckif5uofljpPM9YnfEOcW1YV58lX7U6GE"
-      NEXT_PUBLIC_CLOUDINARY_API_KEY: "248444645881878"
-      CLOUDINARY_API_SECRET: "y38Jd4kfx6DNrk4NUkiaGvPtKC0"
-      CLOUDINARY_CLOUD_NAME: "dxxqj8j8p"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v20
         with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Build
-        run: npm run build
-
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: out
-          branch: gh-pages 
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./ 

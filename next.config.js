@@ -1,11 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export',
-  basePath: '/Revisioncasitas',
   images: {
     unoptimized: true,
   },
+  experimental: {
+    serverActions: true,
+  }
 }
 
 module.exports = nextConfig 
