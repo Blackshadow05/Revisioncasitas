@@ -22,6 +22,58 @@ body {
     rgb(var(--background-end-rgb))
   );
   min-height: 100vh;
+  font-size: 16px;
+}
+
+/* Estilos base para mejor legibilidad en móvil */
+@layer base {
+  html {
+    font-size: 16px;
+  }
+
+  @media (max-width: 768px) {
+    html {
+      font-size: 18px;
+    }
+  }
+
+  h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    line-height: 1.4;
+  }
+
+  p, li, button, input, select, textarea {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+    }
+
+    p, li, button, input, select, textarea {
+      font-size: 1.125rem;
+    }
+  }
 }
 
 /* Estilos personalizados para scrollbars */
@@ -68,4 +120,20 @@ body {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(61, 70, 89, 0.3);
+}
+
+/* Estilos para tablas en móvil */
+@media (max-width: 768px) {
+  table {
+    font-size: 1.125rem;
+  }
+
+  th, td {
+    padding: 0.75rem;
+  }
+
+  .btn {
+    font-size: 1.125rem;
+    padding: 0.75rem 1.25rem;
+  }
 } 

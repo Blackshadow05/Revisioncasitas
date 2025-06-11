@@ -296,32 +296,32 @@ export default function Home() {
                   onMouseUp={handleMouseUp}
                   onMouseMove={handleMouseMove}
                 >
-                  <table className="w-full whitespace-nowrap text-xs md:text-sm">
+                  <table className="w-full whitespace-nowrap text-sm md:text-base">
                     <thead className="sticky top-0 z-30">
                       <tr className="bg-gradient-to-r from-[#1e2538]/90 to-[#2a3347]/90 backdrop-blur-md text-gray-300 text-left">
-                        <th className="sticky left-0 z-40 bg-gradient-to-r from-[#1e2538]/90 to-[#2a3347]/90 backdrop-blur-md px-2 py-1 md:px-3 md:py-2 border-r border-[#3d4659]/50">Fecha</th>
-                        <th className="sticky left-[95px] md:left-[120px] z-40 bg-gradient-to-r from-[#1e2538]/90 to-[#2a3347]/90 backdrop-blur-md px-2 py-1 md:px-3 md:py-2 border-r border-[#3d4659]/50">Casita</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Quien revisa</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Caja fuerte</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Puertas/Ventanas</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Chromecast</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Binoculares</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Trapo binoculares</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Speaker</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">USB Speaker</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Controles TV</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Secadora</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Accesorios secadora</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Steamer</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Bolsa vapor</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Plancha cabello</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Bulto</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Sombrero</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Bolso yute</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Camas ordenadas</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Cola caballo</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Notas</th>
-                        <th className="px-2 py-1 md:px-3 md:py-2">Evidencias</th>
+                        <th className="sticky left-0 z-40 bg-gradient-to-r from-[#1e2538]/90 to-[#2a3347]/90 backdrop-blur-md px-3 py-2 md:px-4 md:py-3 border-r border-[#3d4659]/50">Fecha</th>
+                        <th className="sticky left-[120px] md:left-[150px] z-40 bg-gradient-to-r from-[#1e2538]/90 to-[#2a3347]/90 backdrop-blur-md px-3 py-2 md:px-4 md:py-3 border-r border-[#3d4659]/50">Casita</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Quien revisa</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Caja fuerte</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Puertas/Ventanas</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Chromecast</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Binoculares</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Trapo binoculares</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Speaker</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">USB Speaker</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Controles TV</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Secadora</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Accesorios secadora</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Steamer</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Bolsa vapor</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Plancha cabello</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Bulto</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Sombrero</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Bolso yute</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Camas ordenadas</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Cola caballo</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Notas</th>
+                        <th className="px-3 py-2 md:px-4 md:py-3">Evidencias</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -330,12 +330,12 @@ export default function Home() {
                           key={row.id || index}
                           className="border-t border-[#3d4659]/50 text-gray-300 hover:bg-[#1e2538]/50 transition-colors duration-200"
                         >
-                          <td className="sticky left-0 z-20 bg-gradient-to-r from-[#1a1f35]/90 to-[#1c2138]/90 backdrop-blur-md px-2 py-1 md:px-3 md:py-2 border-r border-[#3d4659]/50">
+                          <td className="sticky left-0 z-20 bg-gradient-to-r from-[#1a1f35]/90 to-[#1c2138]/90 backdrop-blur-md px-3 py-2 md:px-4 md:py-3 border-r border-[#3d4659]/50">
                             <div className="font-medium">
                               {row.created_at.replace('T', ' ').slice(0, 19)}
                             </div>
                           </td>
-                          <td className="sticky left-[95px] md:left-[120px] z-20 bg-gradient-to-r from-[#1a1f35]/90 to-[#1c2138]/90 backdrop-blur-md px-2 py-1 md:px-3 md:py-2 border-r border-[#3d4659]/50">
+                          <td className="sticky left-[120px] md:left-[150px] z-20 bg-gradient-to-r from-[#1a1f35]/90 to-[#1c2138]/90 backdrop-blur-md px-3 py-2 md:px-4 md:py-3 border-r border-[#3d4659]/50">
                             <button
                               onClick={() => {
                                 console.log('ID de la revisión:', row.id);
@@ -346,27 +346,27 @@ export default function Home() {
                               {row.casita}
                             </button>
                           </td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.quien_revisa}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.caja_fuerte}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.puertas_ventanas}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.chromecast}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.binoculares}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.trapo_binoculares}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.speaker}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.usb_speaker}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.controles_tv}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.secadora}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.accesorios_secadora}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.steamer}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.bolsa_vapor}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.plancha_cabello}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.bulto}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.sombrero}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.bolso_yute}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.camas_ordenadas}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.cola_caballo}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">{row.Notas}</td>
-                          <td className="px-2 py-1 md:px-3 md:py-2">
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.quien_revisa}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.caja_fuerte}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.puertas_ventanas}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.chromecast}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.binoculares}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.trapo_binoculares}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.speaker}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.usb_speaker}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.controles_tv}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.secadora}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.accesorios_secadora}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.steamer}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.bolsa_vapor}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.plancha_cabello}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.bulto}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.sombrero}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.bolso_yute}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.camas_ordenadas}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.cola_caballo}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">{row.Notas}</td>
+                          <td className="px-3 py-2 md:px-4 md:py-3">
                             {row.evidencia_01 && (
                               <button
                                 type="button"

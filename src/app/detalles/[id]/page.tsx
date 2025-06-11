@@ -272,17 +272,17 @@ export default function DetallesRevision() {
 
           <div className="space-y-6">
             <div>
-              <h2 className="text-[#c9a45c] font-semibold mb-4">Información General</h2>
+              <h2 className="text-xl md:text-2xl text-[#c9a45c] font-semibold mb-4">Información General</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <p className="text-gray-300">
+                <div className="space-y-3">
+                  <p className="text-base md:text-lg text-gray-300">
                     <span className="text-gray-400">Fecha:</span>{' '}
                     {data.created_at.split('.')[0].replace('T', ' ')}
                   </p>
-                  <p className="text-gray-300">
+                  <p className="text-base md:text-lg text-gray-300">
                     <span className="text-gray-400">Revisado por:</span> {data.quien_revisa}
                   </p>
-                  <p className="text-gray-300">
+                  <p className="text-base md:text-lg text-gray-300">
                     <span className="text-gray-400">Caja fuerte:</span> {data.caja_fuerte}
                   </p>
                 </div>
@@ -290,87 +290,87 @@ export default function DetallesRevision() {
             </div>
 
             <div>
-              <h2 className="text-[#c9a45c] font-semibold mb-4">Accesorios</h2>
+              <h2 className="text-xl md:text-2xl text-[#c9a45c] font-semibold mb-4">Accesorios</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Caja Fuerte</h3>
-                  <p className="text-gray-300">{data.caja_fuerte}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Caja Fuerte</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.caja_fuerte}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Puertas y Ventanas</h3>
-                  <p className="text-gray-300">{data.puertas_ventanas}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Puertas y Ventanas</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.puertas_ventanas}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Chromecast</h3>
-                  <p className="text-gray-300">{data.chromecast}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Chromecast</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.chromecast}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Binoculares</h3>
-                  <p className="text-gray-300">{data.binoculares}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Binoculares</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.binoculares}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Trapo Binoculares</h3>
-                  <p className="text-gray-300">{data.trapo_binoculares}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Trapo Binoculares</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.trapo_binoculares}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Speaker</h3>
-                  <p className="text-gray-300">{data.speaker}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Speaker</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.speaker}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">USB Speaker</h3>
-                  <p className="text-gray-300">{data.usb_speaker}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">USB Speaker</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.usb_speaker}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Controles TV</h3>
-                  <p className="text-gray-300">{data.controles_tv}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Controles TV</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.controles_tv}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Secadora</h3>
-                  <p className="text-gray-300">{data.secadora}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Secadora</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.secadora}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Accesorios Secadora</h3>
-                  <p className="text-gray-300">{data.accesorios_secadora}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Accesorios Secadora</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.accesorios_secadora}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Accesorios Secadora Faltante</h3>
-                  <p className="text-gray-300">{data.accesorios_secadora_faltante}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Accesorios Secadora Faltante</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.accesorios_secadora_faltante}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Faltantes</h3>
-                  <p className="text-gray-300">{data.faltantes}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Faltantes</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.faltantes}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Steamer</h3>
-                  <p className="text-gray-300">{data.steamer}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Steamer</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.steamer}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Bolsa Vapor</h3>
-                  <p className="text-gray-300">{data.bolsa_vapor}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Bolsa Vapor</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.bolsa_vapor}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Plancha Cabello</h3>
-                  <p className="text-gray-300">{data.plancha_cabello}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Plancha Cabello</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.plancha_cabello}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Bulto</h3>
-                  <p className="text-gray-300">{data.bulto}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Bulto</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.bulto}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Sombrero</h3>
-                  <p className="text-gray-300">{data.sombrero}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Sombrero</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.sombrero}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Bolso Yute</h3>
-                  <p className="text-gray-300">{data.bolso_yute}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Bolso Yute</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.bolso_yute}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Camas Ordenadas</h3>
-                  <p className="text-gray-300">{data.camas_ordenadas}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Camas Ordenadas</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.camas_ordenadas}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#ff8c42] font-semibold mb-2">Cola Caballo</h3>
-                  <p className="text-gray-300">{data.cola_caballo}</p>
+                  <h3 className="text-lg md:text-xl text-[#ff8c42] font-semibold mb-3">Cola Caballo</h3>
+                  <p className="text-base md:text-lg text-gray-300">{data.cola_caballo}</p>
                 </div>
               </div>
             </div>
