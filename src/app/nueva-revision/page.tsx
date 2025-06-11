@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import ButtonGroup from '@/components/ButtonGroup';
 import { getWeek } from 'date-fns';
 import { uploadToCloudinary } from '@/lib/cloudinary';
+import { useAuth } from '@/context/AuthContext';
 
 interface RevisionData {
   casita: string;
@@ -83,10 +84,23 @@ const nombresRevisores = [
 
 export default function NuevaRevision() {
   const router = useRouter();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<RevisionData>(initialFormData);
-  const [fileData, setFileData] = useState<FileData>(initialFileData);
+  const [formData, setFormData] = useState<RevisionData>({
+    ...initialFormData,
+    quien_revisa: user || ''
+  });
+
+  // Efecto para actualizar quien_revisa cuando cambie el usuario
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        quien_revisa: user
+      }));
+    }
+  }, [user]);
 
   const showEvidenceFields = ['Check in', 'Upsell', 'Back to Back'].includes(formData.caja_fuerte);
 
@@ -97,7 +111,7 @@ export default function NuevaRevision() {
 
   const handleFileChange = (field: keyof FileData, file: File | null) => {
     if (error) setError(null);
-    setFileData(prev => ({ ...prev, [field]: file }));
+    setFormData(prev => ({ ...prev, [field]: file }));
   };
 
   const compressImage = async (file: File): Promise<File> => {
@@ -179,7 +193,7 @@ export default function NuevaRevision() {
         }
       }
       
-      if (showEvidenceFields && !fileData.evidencia_01) {
+      if (showEvidenceFields && !formData.evidencia_01) {
         setError('El campo "Evidencia 1" es obligatorio cuando se selecciona Check in, Upsell, o Back to Back.');
         return;
       }
@@ -190,18 +204,18 @@ export default function NuevaRevision() {
         evidencia_03: '',
       };
 
-      if (fileData.evidencia_01) {
-        const compressedFile = await compressImage(fileData.evidencia_01);
+      if (formData.evidencia_01) {
+        const compressedFile = await compressImage(formData.evidencia_01);
         uploadedUrls.evidencia_01 = await uploadToCloudinary(compressedFile);
       }
 
-      if (fileData.evidencia_02) {
-        const compressedFile = await compressImage(fileData.evidencia_02);
+      if (formData.evidencia_02) {
+        const compressedFile = await compressImage(formData.evidencia_02);
         uploadedUrls.evidencia_02 = await uploadToCloudinary(compressedFile);
       }
 
-      if (fileData.evidencia_03) {
-        const compressedFile = await compressImage(fileData.evidencia_03);
+      if (formData.evidencia_03) {
+        const compressedFile = await compressImage(formData.evidencia_03);
         uploadedUrls.evidencia_03 = await uploadToCloudinary(compressedFile);
       }
 
@@ -289,17 +303,26 @@ export default function NuevaRevision() {
 
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-300">Quien revisa <span className="text-red-500">*</span></label>
-                <select
-                  required
-                  className="w-full px-4 py-2 md:py-3 bg-[#1e2538] border border-[#3d4659] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#c9a45c] focus:border-transparent transition-all"
-                  value={formData.quien_revisa}
-                  onChange={(e) => handleInputChange('quien_revisa', e.target.value)}
-                >
-                  <option value="">Seleccionar persona</option>
-                  {nombresRevisores.map(nombre => (
-                    <option key={nombre} value={nombre}>{nombre}</option>
-                  ))}
-                </select>
+                {user ? (
+                  <input
+                    type="text"
+                    value={user}
+                    readOnly
+                    className="w-full px-4 py-2 md:py-3 bg-[#1e2538] border border-[#3d4659] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#c9a45c] focus:border-transparent transition-all"
+                  />
+                ) : (
+                  <select
+                    required
+                    className="w-full px-4 py-2 md:py-3 bg-[#1e2538] border border-[#3d4659] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#c9a45c] focus:border-transparent transition-all"
+                    value={formData.quien_revisa}
+                    onChange={(e) => handleInputChange('quien_revisa', e.target.value)}
+                  >
+                    <option value="">Seleccionar persona</option>
+                    {nombresRevisores.map(nombre => (
+                      <option key={nombre} value={nombre}>{nombre}</option>
+                    ))}
+                  </select>
+                )}
               </div>
             </div>
 
