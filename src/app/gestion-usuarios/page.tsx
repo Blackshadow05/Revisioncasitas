@@ -1,5 +1,8 @@
 'use client';
 
+// Página de gestión de usuarios - Permite crear, editar y eliminar usuarios del sistema
+// Solo accesible para usuarios con rol SuperAdmin
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
