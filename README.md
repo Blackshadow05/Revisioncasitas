@@ -1,22 +1,40 @@
-# Sistema de Revisión de Casitas
+# Revisión Casitas
 
-Este es un sistema moderno y elegante para gestionar la revisión de casitas, permitiendo llevar un registro detallado de diversos aspectos importantes en cada revisión.
+Aplicación web para la gestión de revisiones de casitas.
+
+## Estado del Proyecto
+
+✅ Despliegue exitoso en Vercel
+✅ Variables de entorno configuradas correctamente
+✅ Funcionalidades principales operativas
 
 ## Características
 
-- Interfaz moderna y responsiva
-- Tabla con todas las columnas necesarias para el registro
-- Formulario de ingreso de datos
-- Diseño elegante y profesional
-- Soporte para fechas y horas automáticas
+- Gestión de revisiones de casitas
+- Sistema de autenticación
+- Gestión de usuarios
+- Carga y visualización de evidencias
+- Notas y comentarios
+- Historial de ediciones
 
-## Tecnologías Utilizadas
+## Tecnologías
 
 - Next.js 14
-- React 18
-- TypeScript
+- Supabase
 - Tailwind CSS
-- Date-fns
+- TypeScript
+
+## Configuración
+
+El proyecto requiere las siguientes variables de entorno:
+
+### Cliente (NEXT_PUBLIC_)
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+### Servidor
+- SUPABASE_URL
+- SUPABASE_ANON_KEY
 
 ## Instalación
 
