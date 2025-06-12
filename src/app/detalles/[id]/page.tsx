@@ -226,42 +226,68 @@ export default function DetallesRevision() {
   const closeModal = () => {
     setModalOpen(false);
     setModalImg(null);
+    setZoom(1);
     setPosition({ x: 0, y: 0 });
   };
 
-  const handleWheel = (e: React.WheelEvent<HTMLImageElement>) => {
+  const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
-    setZoom(z => Math.max(0.2, Math.min(5, z + (e.deltaY < 0 ? 0.1 : -0.1))));
+    const delta = e.deltaY;
+    const newZoom = delta < 0 ? zoom * 1.1 : zoom / 1.1;
+    setZoom(Math.min(Math.max(1, newZoom), 5));
   };
 
-  const handleMouseDownImage = (e: React.MouseEvent<HTMLImageElement>) => {
-    if (zoom > 1 && e.button === 2) {
+  const handleMouseDownImage = (e: React.MouseEvent) => {
+    if (zoom > 1) {
       e.preventDefault();
       setIsDragging(true);
-      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
-    }
-  };
-
-  const handleMouseMoveImage = (e: React.MouseEvent<HTMLImageElement>) => {
-    if (isDragging && zoom > 1) {
-      e.preventDefault();
-      setPosition({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y
+      setDragStart({
+        x: e.clientX - position.x,
+        y: e.clientY - position.y
       });
     }
   };
 
-  const handleMouseUpImage = (e: React.MouseEvent<HTMLImageElement>) => {
-    if (e.button === 2) {
-      setIsDragging(false);
+  const handleMouseMoveImage = (e: React.MouseEvent) => {
+    if (isDragging && zoom > 1) {
+      e.preventDefault();
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
+      
+      const img = imgRef.current;
+      if (img) {
+        const rect = img.getBoundingClientRect();
+        const scaledWidth = rect.width * zoom;
+        const scaledHeight = rect.height * zoom;
+        
+        const maxX = (scaledWidth - rect.width) / 2;
+        const maxY = (scaledHeight - rect.height) / 2;
+        
+        setPosition({
+          x: Math.min(Math.max(-maxX, newX), maxX),
+          y: Math.min(Math.max(-maxY, newY), maxY)
+        });
+      }
     }
   };
 
-  const handleContextMenu = (e: React.MouseEvent<HTMLImageElement>) => {
-    if (zoom > 1) {
-      e.preventDefault();
+  const handleMouseUpImage = () => {
+    setIsDragging(false);
+  };
+
+  const handleZoomIn = () => {
+    setZoom(prev => Math.min(prev * 1.2, 5));
+  };
+
+  const handleZoomOut = () => {
+    setZoom(prev => Math.max(prev / 1.2, 1));
+    if (zoom <= 1) {
+      setPosition({ x: 0, y: 0 });
     }
+  };
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
   };
 
   const handleEdit = () => {
@@ -375,21 +401,110 @@ export default function DetallesRevision() {
     <main className="min-h-screen bg-gradient-to-br from-[#1a1f35] to-[#2d364c]">
       {/* Modal de imagen */}
       {modalOpen && modalImg && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="relative w-[90vw] h-[90vh]">
-            <img
-              src={modalImg}
-              alt="Evidencia"
-              className="w-full h-full object-contain"
-            />
-            <button
-              onClick={() => setModalOpen(false)}
-              className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-all"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 overflow-hidden">
+          <div className="relative w-[90vw] h-[90vh] overflow-hidden">
+            <div className="w-full h-full flex items-center justify-center">
+              <img
+                ref={imgRef}
+                src={modalImg}
+                alt="Evidencia"
+                className="max-w-full max-h-full object-contain"
+                style={{
+                  transform: `scale(${zoom}) translate(${position.x}px, ${position.y}px)`,
+                  cursor: zoom > 1 ? 'grab' : 'default',
+                  transition: 'transform 0.1s ease-out',
+                  touchAction: 'none'
+                }}
+                onWheel={handleWheel}
+                onMouseDown={handleMouseDownImage}
+                onMouseMove={handleMouseMoveImage}
+                onMouseUp={handleMouseUpImage}
+                onTouchStart={(e) => {
+                  if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    const initialDistance = Math.hypot(
+                      touch2.clientX - touch1.clientX,
+                      touch2.clientY - touch1.clientY
+                    );
+                    setDragStart({ x: initialDistance, y: 0 });
+                  } else if (e.touches.length === 1 && zoom > 1) {
+                    e.preventDefault();
+                    setIsDragging(true);
+                    setDragStart({
+                      x: e.touches[0].clientX - position.x,
+                      y: e.touches[0].clientY - position.y
+                    });
+                  }
+                }}
+                onTouchMove={(e) => {
+                  if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    const currentDistance = Math.hypot(
+                      touch2.clientX - touch1.clientX,
+                      touch2.clientY - touch1.clientY
+                    );
+                    const scale = currentDistance / dragStart.x;
+                    const newZoom = Math.min(Math.max(zoom * scale, 1), 5);
+                    setZoom(newZoom);
+                    setDragStart({ x: currentDistance, y: 0 });
+                  } else if (isDragging && zoom > 1) {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const newX = touch.clientX - dragStart.x;
+                    const newY = touch.clientY - dragStart.y;
+                    
+                    const img = imgRef.current;
+                    if (img) {
+                      const rect = img.getBoundingClientRect();
+                      const scaledWidth = rect.width * zoom;
+                      const scaledHeight = rect.height * zoom;
+                      
+                      const maxX = (scaledWidth - rect.width) / 2;
+                      const maxY = (scaledHeight - rect.height) / 2;
+                      
+                      setPosition({
+                        x: Math.min(Math.max(-maxX, newX), maxX),
+                        y: Math.min(Math.max(-maxY, newY), maxY)
+                      });
+                    }
+                  }
+                }}
+                onTouchEnd={() => {
+                  setIsDragging(false);
+                }}
+                onContextMenu={handleContextMenu}
+              />
+            </div>
+            <div className="absolute top-4 right-4 flex gap-2">
+              <button
+                onClick={handleZoomIn}
+                className="text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </button>
+              <button
+                onClick={handleZoomOut}
+                className="text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                </svg>
+              </button>
+              <button
+                onClick={closeModal}
+                className="text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -520,25 +635,25 @@ export default function DetallesRevision() {
                     {data.evidencia_01 && (
                       <button
                         onClick={() => openModal(data.evidencia_01)}
-                        className="bg-[#c9a45c] text-white px-4 py-2 rounded hover:bg-[#d4b06c] transition"
+                        className="bg-[#c9a45c] text-white px-3 py-1.5 text-sm rounded hover:bg-[#d4b06c] transition-all transform hover:scale-[1.02] shadow-[0_4px_8px_rgb(0_0_0/0.2)] hover:shadow-[0_6px_12px_rgb(0_0_0/0.3)] relative overflow-hidden border border-white/20 hover:border-white/40"
                       >
-                        Ver Evidencia 1
+                        Ver
                       </button>
                     )}
                     {data.evidencia_02 && (
                       <button
                         onClick={() => openModal(data.evidencia_02)}
-                        className="bg-[#c9a45c] text-white px-4 py-2 rounded hover:bg-[#d4b06c] transition"
+                        className="bg-[#c9a45c] text-white px-3 py-1.5 text-sm rounded hover:bg-[#d4b06c] transition-all transform hover:scale-[1.02] shadow-[0_4px_8px_rgb(0_0_0/0.2)] hover:shadow-[0_6px_12px_rgb(0_0_0/0.3)] relative overflow-hidden border border-white/20 hover:border-white/40"
                       >
-                        Ver Evidencia 2
+                        Ver
                       </button>
                     )}
                     {data.evidencia_03 && (
                       <button
                         onClick={() => openModal(data.evidencia_03)}
-                        className="bg-[#c9a45c] text-white px-4 py-2 rounded hover:bg-[#d4b06c] transition"
+                        className="bg-[#c9a45c] text-white px-3 py-1.5 text-sm rounded hover:bg-[#d4b06c] transition-all transform hover:scale-[1.02] shadow-[0_4px_8px_rgb(0_0_0/0.2)] hover:shadow-[0_6px_12px_rgb(0_0_0/0.3)] relative overflow-hidden border border-white/20 hover:border-white/40"
                       >
-                        Ver Evidencia 3
+                        Ver
                       </button>
                     )}
                   </div>

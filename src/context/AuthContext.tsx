@@ -43,8 +43,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error('Usuario no encontrado');
       }
 
-      // Aquí deberías implementar la verificación del hash de la contraseña
-      // Por ahora, solo verificamos que exista el usuario
+      // Verificar la contraseña
+      if (userData.password_hash !== password) {
+        throw new Error('Contraseña incorrecta');
+      }
 
       // Guardar la sesión en localStorage
       const sessionData = {

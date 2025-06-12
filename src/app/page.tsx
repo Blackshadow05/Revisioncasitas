@@ -144,51 +144,71 @@ export default function Home() {
   const closeModal = () => {
     setModalOpen(false);
     setModalImg(null);
+    setZoom(1);
     setPosition({ x: 0, y: 0 });
   };
 
-  const handleWheel = (e: React.WheelEvent<HTMLImageElement>) => {
+  const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
-    setZoom(z => Math.max(0.2, Math.min(5, z + (e.deltaY < 0 ? 0.1 : -0.1))));
+    const delta = e.deltaY;
+    const newZoom = delta < 0 ? zoom * 1.1 : zoom / 1.1;
+    setZoom(Math.min(Math.max(1, newZoom), 5));
   };
 
-  const handleMouseDownImage = (e: React.MouseEvent<HTMLImageElement>) => {
-    if (zoom > 1 && e.button === 2) {
+  const handleMouseDownImage = (e: React.MouseEvent) => {
+    if (zoom > 1) {
       e.preventDefault();
       setIsDragging(true);
-      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
-    }
-  };
-
-  const handleMouseMoveImage = (e: React.MouseEvent<HTMLImageElement>) => {
-    if (isDragging && zoom > 1) {
-      e.preventDefault();
-      setPosition({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y
+      setDragStart({
+        x: e.clientX - position.x,
+        y: e.clientY - position.y
       });
     }
   };
 
-  const handleMouseUpImage = (e: React.MouseEvent<HTMLImageElement>) => {
-    if (e.button === 2) {
-      setIsDragging(false);
-    }
-  };
-
-  const handleContextMenu = (e: React.MouseEvent<HTMLImageElement>) => {
-    if (zoom > 1) {
+  const handleMouseMoveImage = (e: React.MouseEvent) => {
+    if (isDragging && zoom > 1) {
       e.preventDefault();
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
+      
+      // Obtener las dimensiones de la imagen
+      const img = imgRef.current;
+      if (img) {
+        const rect = img.getBoundingClientRect();
+        const scaledWidth = rect.width * zoom;
+        const scaledHeight = rect.height * zoom;
+        
+        // Calcular los límites de arrastre
+        const maxX = (scaledWidth - rect.width) / 2;
+        const maxY = (scaledHeight - rect.height) / 2;
+        
+        // Limitar el arrastre a los límites de la imagen
+        setPosition({
+          x: Math.min(Math.max(-maxX, newX), maxX),
+          y: Math.min(Math.max(-maxY, newY), maxY)
+        });
+      }
     }
   };
 
-  const handleZoomIn = () => setZoom(z => Math.min(5, z + 0.2));
+  const handleMouseUpImage = () => {
+    setIsDragging(false);
+  };
+
+  const handleZoomIn = () => {
+    setZoom(prev => Math.min(prev * 1.2, 5));
+  };
+
   const handleZoomOut = () => {
-    const newZoom = Math.max(0.2, zoom - 0.2);
-    if (newZoom <= 1) {
+    setZoom(prev => Math.max(prev / 1.2, 1));
+    if (zoom <= 1) {
       setPosition({ x: 0, y: 0 });
     }
-    setZoom(newZoom);
+  };
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -479,23 +499,26 @@ export default function Home() {
 
         {/* Modal de imagen */}
         {modalOpen && modalImg && (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-            <div className="relative w-[90vw] h-[90vh]">
-              <img
-                ref={imgRef}
-                src={modalImg}
-                alt="Evidencia"
-                className="w-full h-full object-contain"
-                style={{
-                  transform: `scale(${zoom}) translate(${position.x}px, ${position.y}px)`,
-                  cursor: zoom > 1 ? 'grab' : 'default'
-                }}
-                onWheel={handleWheel}
-                onMouseDown={handleMouseDownImage}
-                onMouseMove={handleMouseMoveImage}
-                onMouseUp={handleMouseUpImage}
-                onContextMenu={handleContextMenu}
-              />
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 overflow-hidden">
+            <div className="relative w-[90vw] h-[90vh] overflow-hidden">
+              <div className="w-full h-full flex items-center justify-center">
+                <img
+                  ref={imgRef}
+                  src={modalImg}
+                  alt="Evidencia"
+                  className="max-w-full max-h-full object-contain"
+                  style={{
+                    transform: `scale(${zoom}) translate(${position.x}px, ${position.y}px)`,
+                    cursor: zoom > 1 ? 'grab' : 'default',
+                    transition: 'transform 0.1s ease-out'
+                  }}
+                  onWheel={handleWheel}
+                  onMouseDown={handleMouseDownImage}
+                  onMouseMove={handleMouseMoveImage}
+                  onMouseUp={handleMouseUpImage}
+                  onContextMenu={handleContextMenu}
+                />
+              </div>
               <div className="absolute top-4 right-4 flex gap-2">
                 <button
                   onClick={handleZoomIn}
