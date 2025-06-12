@@ -31,6 +31,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (usuario: string, password: string) => {
     try {
+      if (!supabase) {
+        throw new Error('No se pudo conectar con la base de datos');
+      }
+
       const { data: userData, error } = await supabase
         .from('Usuarios')
         .select('Usuario, Rol, password_hash')

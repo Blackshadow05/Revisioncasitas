@@ -6,6 +6,10 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function setupStorage() {
   try {
+    if (!supabase) {
+      throw new Error('No se pudo conectar con la base de datos');
+    }
+
     // Crear el bucket para evidencias si no existe
     const { data: buckets, error: bucketsError } = await supabase
       .storage
