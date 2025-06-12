@@ -99,6 +99,10 @@ export default function DetallesRevision() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      if (!supabase) {
+        throw new Error('No se pudo conectar con la base de datos');
+      }
+
       const { data: revisionData, error: revisionError } = await supabase
         .from('revisiones_casitas')
         .select('*')
@@ -147,7 +151,7 @@ export default function DetallesRevision() {
 
   const handleSubmitNota = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!data) return;
+    if (!data || !supabase) return;
     
     try {
       setIsSubmitting(true);
@@ -297,7 +301,7 @@ export default function DetallesRevision() {
   };
 
   const handleSaveEdit = async () => {
-    if (!data || !editedData) return;
+    if (!data || !editedData || !supabase) return;
 
     try {
       setIsSubmitting(true);
