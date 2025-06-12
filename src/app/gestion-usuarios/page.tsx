@@ -10,38 +10,37 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 
 interface Usuario {
-  id: string | null;
+  id?: string;
   Usuario: string;
-  Rol: string;
   password_hash: string;
-  created_at: string | null;
+  Rol: string;
+  created_at?: string;
 }
 
 export default function GestionUsuarios() {
   const router = useRouter();
   const { userRole } = useAuth();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [nuevoUsuario, setNuevoUsuario] = useState<Omit<Usuario, 'id' | 'created_at'>>({
-    Usuario: '',
-    Rol: '',
-    password_hash: ''
-  });
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [nuevoUsuario, setNuevoUsuario] = useState<Usuario>({
+    Usuario: '',
+    password_hash: '',
+    Rol: ''
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [usuarioToDelete, setUsuarioToDelete] = useState<Usuario | null>(null);
 
-  // Si el usuario no es SuperAdmin, redirigir a la página principal
-  if (userRole !== 'SuperAdmin') {
-    router.push('/');
-    return null;
-  }
-
   useEffect(() => {
+    if (userRole !== 'SuperAdmin') {
+      router.push('/');
+      return;
+    }
     fetchUsuarios();
-  }, []);
+  }, [userRole, router]);
 
   const fetchUsuarios = async () => {
     try {
@@ -53,8 +52,10 @@ export default function GestionUsuarios() {
       if (error) throw error;
       setUsuarios(data || []);
     } catch (error: any) {
-      console.error('Error al cargar usuarios:', error);
+      console.error('Error al obtener usuarios:', error);
       setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,6 +65,7 @@ export default function GestionUsuarios() {
     setError(null);
 
     try {
+      setLoading(true);
       const now = new Date();
       const fechaLocal = now.toLocaleString('es-ES', {
         year: 'numeric',
@@ -89,12 +91,14 @@ export default function GestionUsuarios() {
       } else {
         const { error: insertError } = await supabase
           .from('Usuarios')
-          .insert([{
-            Usuario: nuevoUsuario.Usuario,
-            Rol: nuevoUsuario.Rol,
-            password_hash: nuevoUsuario.password_hash,
-            created_at: fechaLocal
-          }]);
+          .insert([
+            {
+              Usuario: nuevoUsuario.Usuario,
+              password_hash: nuevoUsuario.password_hash,
+              Rol: nuevoUsuario.Rol,
+              created_at: fechaLocal
+            }
+          ]);
 
         if (insertError) throw insertError;
       }
@@ -102,8 +106,8 @@ export default function GestionUsuarios() {
       // Limpiar el formulario y actualizar la lista
       setNuevoUsuario({
         Usuario: '',
-        Rol: '',
-        password_hash: ''
+        password_hash: '',
+        Rol: ''
       });
       setIsEditing(false);
       setEditingId(null);
@@ -113,6 +117,7 @@ export default function GestionUsuarios() {
       setError(error.message);
     } finally {
       setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
@@ -149,15 +154,18 @@ export default function GestionUsuarios() {
   const handleCancel = () => {
     setNuevoUsuario({
       Usuario: '',
-      Rol: '',
-      password_hash: ''
+      password_hash: '',
+      Rol: ''
     });
     setIsEditing(false);
     setEditingId(null);
   };
 
+  if (loading) return <div className="min-h-screen bg-gradient-to-br from-[#1a1f35] to-[#2d364c] flex items-center justify-center text-white">Cargando...</div>;
+  if (error) return <div className="min-h-screen bg-gradient-to-br from-[#1a1f35] to-[#2d364c] flex items-center justify-center text-red-500">Error: {error}</div>;
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#1a1f35] to-[#2d364c]">
+    <main className="min-h-screen bg-gradient-to-br from-[#1a1f35] to-[#2d364c] py-8">
       {/* Modal de confirmación de eliminación */}
       {showDeleteModal && usuarioToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -193,7 +201,7 @@ export default function GestionUsuarios() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4">
         <div className="bg-[#1e2538] rounded-lg shadow-xl p-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold text-white">Gestión de Usuarios</h1>
@@ -205,7 +213,7 @@ export default function GestionUsuarios() {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6 mb-8">
+          <form onSubmit={handleSubmit} className="space-y-4 mb-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">
