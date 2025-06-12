@@ -16,5 +16,10 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   },
   db: {
     schema: 'public'
+  },
+  global: {
+    headers: {
+      'x-application-name': 'revision-casitas'
+    }
   }
 }); 
