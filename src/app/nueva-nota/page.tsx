@@ -134,20 +134,24 @@ export default function NuevaNota() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-    
+    if (!supabase) {
+      setError('No se pudo conectar con la base de datos');
+      return;
+    }
+
     try {
-      let evidenciaUrl = '';
+      setLoading(true);
+      let evidenciaUrl = null;
+
       if (formData.evidencia) {
+        const compressedImage = await compressImage(formData.evidencia);
         const now = new Date();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const week = `semana_${getWeek(now, { weekStartsOn: 1 })}`;
         const folder = `notas/${month}/${week}`;
         
         const formDataCloudinary = new FormData();
-        formDataCloudinary.append('file', formData.evidencia);
+        formDataCloudinary.append('file', compressedImage);
         formDataCloudinary.append('upload_preset', 'PruebaSubir');
         formDataCloudinary.append('cloud_name', 'dhd61lan4');
         formDataCloudinary.append('folder', folder);
@@ -168,27 +172,42 @@ export default function NuevaNota() {
         evidenciaUrl = data.secure_url;
       }
 
+      // Obtener fecha y hora local del dispositivo
+      const now = new Date();
+      const fechaLocal = new Date(now.getTime() - (now.getTimezoneOffset() * 60000));
+      
       const { error } = await supabase
         .from('Notas')
         .insert([
           {
-            fecha: formData.fecha,
+            fecha: fechaLocal.toISOString(),
             Casita: formData.casita,
-            nota: formData.nota,
-            Evidencia: evidenciaUrl,
             Usuario: formData.Usuario,
-          },
+            nota: formData.nota,
+            Evidencia: evidenciaUrl
+          }
         ]);
 
       if (error) throw error;
+
+      // Limpiar el formulario
+      setFormData({
+        fecha: new Date().toISOString().split('T')[0],
+        casita: '',
+        nota: '',
+        evidencia: null,
+        Usuario: '',
+      });
+      setError(null);
       
+      // Mostrar mensaje de éxito
       setSuccess(true);
       setTimeout(() => {
         router.push('/');
       }, 1500);
     } catch (error: any) {
       console.error('Error al guardar la nota:', error);
-      setError(error.message || 'Error al guardar la nota');
+      setError(error.message);
     } finally {
       setLoading(false);
     }
