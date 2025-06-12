@@ -1,4 +1,8 @@
-import { supabase } from './supabase';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.SUPABASE_URL!;
+const supabaseKey = process.env.SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function setupStorage() {
   try {
@@ -69,5 +73,6 @@ export async function setupStorage() {
     console.log('Configuración de almacenamiento y seguridad completada');
   } catch (error) {
     console.error('Error configurando el almacenamiento y seguridad:', error);
+    throw error;
   }
 } 
