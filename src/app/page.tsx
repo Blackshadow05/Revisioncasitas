@@ -94,7 +94,10 @@ export default function Home() {
   const fetchRevisiones = async () => {
     try {
       setLoading(true);
-      setError(null);
+      if (!supabase) {
+        throw new Error('No se pudo conectar con la base de datos');
+      }
+
       console.log('Fetching data from Supabase...');
       
       const { data: revisiones, error } = await supabase
@@ -103,14 +106,14 @@ export default function Home() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Error fetching data:', error);
         throw error;
       }
 
-      console.log('Data received:', revisiones);
+      console.log('Data fetched successfully:', revisiones);
       setData(revisiones || []);
     } catch (error: any) {
-      console.error('Error fetching data:', error);
+      console.error('Error in fetchData:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -262,6 +265,28 @@ export default function Home() {
     } catch (error: any) {
       console.error('Error al iniciar sesión:', error);
       setLoginError('Error al iniciar sesión');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!supabase) {
+      setError('No se pudo conectar con la base de datos');
+      return;
+    }
+
+    if (!confirm('¿Estás seguro de que deseas eliminar esta revisión?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('revisiones_casitas')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      fetchRevisiones();
+    } catch (error: any) {
+      console.error('Error al eliminar la revisión:', error);
+      setError(error.message);
     }
   };
 
