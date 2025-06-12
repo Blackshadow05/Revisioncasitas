@@ -10,8 +10,10 @@ const nextConfig = {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
   },
   output: 'standalone',
-  telemetry: {
-    disable: true
+  experimental: {
+    telemetry: {
+      enabled: false
+    }
   }
 }
 
