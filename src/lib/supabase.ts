@@ -9,17 +9,30 @@ if (typeof window !== 'undefined') {
   if (!supabaseKey) throw new Error('Missing Supabase Key');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-  db: {
-    schema: 'public'
-  },
-  global: {
-    headers: {
-      'x-application-name': 'revision-casitas'
-    }
+// Validar la URL de Supabase
+const isValidUrl = (url: string) => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
   }
-}); 
+};
+
+// Crear el cliente de Supabase solo si la URL es válida
+export const supabase = isValidUrl(supabaseUrl) 
+  ? createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+      db: {
+        schema: 'public'
+      },
+      global: {
+        headers: {
+          'x-application-name': 'revision-casitas'
+        }
+      }
+    })
+  : null; 
