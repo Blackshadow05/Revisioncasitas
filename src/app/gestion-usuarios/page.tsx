@@ -44,6 +44,10 @@ export default function GestionUsuarios() {
 
   const fetchUsuarios = async () => {
     try {
+      if (!supabase) {
+        throw new Error('No se pudo conectar con la base de datos');
+      }
+
       const { data, error } = await supabase
         .from('Usuarios')
         .select('*')
@@ -52,7 +56,7 @@ export default function GestionUsuarios() {
       if (error) throw error;
       setUsuarios(data || []);
     } catch (error: any) {
-      console.error('Error al obtener usuarios:', error);
+      console.error('Error al cargar usuarios:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -61,49 +65,23 @@ export default function GestionUsuarios() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
+    if (!supabase) {
+      setError('No se pudo conectar con la base de datos');
+      return;
+    }
 
     try {
-      setLoading(true);
-      const now = new Date();
-      const fechaLocal = now.toLocaleString('es-ES', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      }).replace(',', '');
+      setIsSubmitting(true);
+      const { error } = await supabase
+        .from('Usuarios')
+        .insert([{
+          Usuario: nuevoUsuario.Usuario,
+          password_hash: nuevoUsuario.password_hash,
+          Rol: nuevoUsuario.Rol
+        }]);
 
-      if (isEditing && editingId) {
-        const { error: updateError } = await supabase
-          .from('Usuarios')
-          .update({
-            Usuario: nuevoUsuario.Usuario,
-            password_hash: nuevoUsuario.password_hash,
-            Rol: nuevoUsuario.Rol
-          })
-          .eq('id', editingId);
+      if (error) throw error;
 
-        if (updateError) throw updateError;
-      } else {
-        const { error: insertError } = await supabase
-          .from('Usuarios')
-          .insert([
-            {
-              Usuario: nuevoUsuario.Usuario,
-              password_hash: nuevoUsuario.password_hash,
-              Rol: nuevoUsuario.Rol,
-              created_at: fechaLocal
-            }
-          ]);
-
-        if (insertError) throw insertError;
-      }
-
-      // Limpiar el formulario y actualizar la lista
       setNuevoUsuario({
         Usuario: '',
         password_hash: '',
@@ -113,11 +91,10 @@ export default function GestionUsuarios() {
       setEditingId(null);
       await fetchUsuarios();
     } catch (error: any) {
-      console.error('Error al guardar usuario:', error);
+      console.error('Error al crear usuario:', error);
       setError(error.message);
     } finally {
       setIsSubmitting(false);
-      setLoading(false);
     }
   };
 
@@ -138,6 +115,13 @@ export default function GestionUsuarios() {
 
   const confirmDelete = async () => {
     if (!usuarioToDelete?.id) return;
+
+    if (!supabase) {
+      setError('No se pudo conectar con la base de datos');
+      return;
+    }
+
+    if (!confirm('¿Estás seguro de que deseas eliminar este usuario?')) return;
 
     try {
       const { error } = await supabase
