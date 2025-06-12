@@ -10,11 +10,11 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 
 interface Usuario {
-  id?: string;
+  id: string | null;
   Usuario: string;
   password_hash: string;
   Rol: string;
-  created_at?: string;
+  created_at: string | null;
 }
 
 export default function GestionUsuarios() {
@@ -23,7 +23,7 @@ export default function GestionUsuarios() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [nuevoUsuario, setNuevoUsuario] = useState<Usuario>({
+  const [nuevoUsuario, setNuevoUsuario] = useState<Omit<Usuario, 'id' | 'created_at'>>({
     Usuario: '',
     password_hash: '',
     Rol: ''
@@ -82,8 +82,8 @@ export default function GestionUsuarios() {
           .from('Usuarios')
           .update({
             Usuario: nuevoUsuario.Usuario,
-            Rol: nuevoUsuario.Rol,
-            password_hash: nuevoUsuario.password_hash
+            password_hash: nuevoUsuario.password_hash,
+            Rol: nuevoUsuario.Rol
           })
           .eq('id', editingId);
 
@@ -122,7 +122,11 @@ export default function GestionUsuarios() {
   };
 
   const handleEdit = (usuario: Usuario) => {
-    setNuevoUsuario(usuario);
+    setNuevoUsuario({
+      Usuario: usuario.Usuario,
+      password_hash: usuario.password_hash,
+      Rol: usuario.Rol
+    });
     setIsEditing(true);
     setEditingId(usuario.id);
   };
