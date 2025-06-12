@@ -168,10 +168,15 @@ export default function NuevaRevision() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+    if (!supabase) {
+      setError('No se pudo conectar con la base de datos');
+      return;
+    }
 
     try {
+      setLoading(true);
+      setError(null);
+
       // Obtener fecha y hora local del dispositivo
       const now = new Date();
       const fechaLocal = new Date(now.getTime() - (now.getTimezoneOffset() * 60000));
