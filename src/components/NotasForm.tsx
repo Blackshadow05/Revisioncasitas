@@ -1,29 +1,43 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/router';
+
+interface FormData {
+  fecha: string;
+  casita: string;
+  Usuario: string;
+  nota: string;
+  evidencia: File | null;
+}
 
 interface NotasFormProps {
   onClose: () => void;
 }
 
 export default function NotasForm({ onClose }: NotasFormProps) {
-  const [formData, setFormData] = useState({
-    fecha: '',
+  const [formData, setFormData] = useState<FormData>({
+    fecha: new Date().toISOString().split('T')[0],
     casita: '',
+    Usuario: '',
     nota: '',
-    evidencia: null as File | null,
+    evidencia: null
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-    
+    if (!supabase) {
+      setError('No se pudo conectar con la base de datos');
+      return;
+    }
+
     try {
-      // Primero subimos la evidencia si existe
+      setLoading(true);
+      setError(null);
+
       let evidenciaUrl = null;
       if (formData.evidencia) {
         const fileExt = formData.evidencia.name.split('.').pop();
@@ -33,30 +47,42 @@ export default function NotasForm({ onClose }: NotasFormProps) {
           .upload(fileName, formData.evidencia);
 
         if (uploadError) throw uploadError;
-        evidenciaUrl = uploadData.path;
+        evidenciaUrl = uploadData?.path;
       }
 
-      // Luego guardamos la nota
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from('Notas')
         .insert([
           {
             fecha: formData.fecha,
-            casita: formData.casita,
+            Casita: formData.casita,
+            Usuario: formData.Usuario,
             nota: formData.nota,
-            evidencia: evidenciaUrl,
-          },
+            Evidencia: evidenciaUrl
+          }
         ]);
 
-      if (error) throw error;
-      
+      if (insertError) throw insertError;
+
+      // Limpiar el formulario
+      setFormData({
+        fecha: new Date().toISOString().split('T')[0],
+        casita: '',
+        Usuario: '',
+        nota: '',
+        evidencia: null
+      });
+      setError(null);
       setSuccess(true);
-      setTimeout(() => {
-        onClose();
-      }, 1500);
+      
+      // Mostrar mensaje de éxito
+      alert('Nota guardada exitosamente');
+      
+      // Redirigir a la página principal
+      router.push('/');
     } catch (error: any) {
       console.error('Error al guardar la nota:', error);
-      setError(error.message || 'Error al guardar la nota');
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -96,6 +122,17 @@ export default function NotasForm({ onClose }: NotasFormProps) {
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               value={formData.casita}
               onChange={(e) => setFormData({ ...formData, casita: e.target.value })}
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Usuario</label>
+            <input
+              type="text"
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              value={formData.Usuario}
+              onChange={(e) => setFormData({ ...formData, Usuario: e.target.value })}
             />
           </div>
           
