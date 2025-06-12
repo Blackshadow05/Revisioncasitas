@@ -30,9 +30,9 @@ interface RevisionData {
   bolso_yute: string;
   camas_ordenadas: string;
   cola_caballo: string;
-  evidencia_01: string;
-  evidencia_02: string;
-  evidencia_03: string;
+  evidencia_01: File | string;
+  evidencia_02: File | string;
+  evidencia_03: File | string;
   faltantes: string;
 }
 
@@ -204,17 +204,17 @@ export default function NuevaRevision() {
         evidencia_03: '',
       };
 
-      if (formData.evidencia_01) {
+      if (formData.evidencia_01 instanceof File) {
         const compressedFile = await compressImage(formData.evidencia_01);
         uploadedUrls.evidencia_01 = await uploadToCloudinary(compressedFile);
       }
 
-      if (formData.evidencia_02) {
+      if (formData.evidencia_02 instanceof File) {
         const compressedFile = await compressImage(formData.evidencia_02);
         uploadedUrls.evidencia_02 = await uploadToCloudinary(compressedFile);
       }
 
-      if (formData.evidencia_03) {
+      if (formData.evidencia_03 instanceof File) {
         const compressedFile = await compressImage(formData.evidencia_03);
         uploadedUrls.evidencia_03 = await uploadToCloudinary(compressedFile);
       }

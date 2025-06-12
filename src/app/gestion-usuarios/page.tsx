@@ -1,5 +1,6 @@
 'use client';
 
+// Forzar nueva ejecución del workflow
 // Página de gestión de usuarios - Permite crear, editar y eliminar usuarios del sistema
 // Solo accesible para usuarios con rol SuperAdmin
 
