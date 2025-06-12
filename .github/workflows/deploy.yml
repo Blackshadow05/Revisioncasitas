@@ -26,7 +26,11 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ENV: production
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+          npm install
+          vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy Project Artifacts to Vercel
         run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} 
