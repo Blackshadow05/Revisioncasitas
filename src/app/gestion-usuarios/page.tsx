@@ -282,26 +282,9 @@ export default function GestionUsuarios() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`px-6 py-2 text-sm font-medium text-[#1a1f35] ${
-                  isSubmitting ? 'bg-[#22c55e] hover:bg-[#22c55e]' : 'bg-[#f0c987] hover:bg-[#f7d498]'
-                } rounded-xl transition-all transform hover:scale-[1.02] shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden border-2 border-white/40 hover:border-white/60 disabled:opacity-50 flex items-center justify-center gap-2 min-w-[120px]`}
+                className="px-4 py-2 bg-[#c9a45c] text-white rounded-lg hover:bg-[#d4b06c] transition-all transform hover:scale-[1.02] shadow-[0_8px_16px_rgb(0_0_0/0.2)] hover:shadow-[0_12px_24px_rgb(0_0_0/0.3)] relative overflow-hidden border-2 border-white/40 hover:border-white/60"
               >
-                {isSubmitting ? (
-                  <>
-                    <svg className="animate-spin h-5 w-5 text-[#1a1f35]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span>Guardando...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                    </svg>
-                    <span>{isEditing ? 'Actualizar Usuario' : 'Crear Usuario'}</span>
-                  </>
-                )}
+                {isSubmitting ? 'Guardando...' : 'Guardar'}
               </button>
             </div>
           </form>
